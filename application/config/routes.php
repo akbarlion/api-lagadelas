@@ -61,3 +61,4 @@ $route['api/master/ins-session'] = 'Api/createPinSession';
 $route['api/master/session'] = 'Api/sessionList';
 $route['api/master/update-session'] = 'Api/sessionUpdate';
 $route['api/master/submit'] = 'Api/insertJawabanPupuk';
+$route['api/master/bikin-sandi'] = 'Api/createSoalSandi';

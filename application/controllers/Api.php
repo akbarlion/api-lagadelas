@@ -42,34 +42,41 @@ class Api extends RestController
     public function sessionUpdate_post()
     {
         $param = $this->post();
-        $ID_SESSION = $param['ID_SESSION'];
-        $DESCRIPTION = $param['DESCRIPTION'];
-        $SESSION_DATE = $param['SESSION_DATE'];
-        $SESSION_START = $param['SESSION_START'];
-        $SESSION_END = $param['SESSION_END'];
+        $id_session = $param['ID_SESSION'];
+        $pin_session = $param['SESSION_PIN'];
+        $name_session = $param['SESSION_NAME'];
+        $desc = $param['DESCRIPTION'];
+        $date_sesi = $param['SESSION_DATE'];
+        $start = $param['SESSION_START'];
+        $end = $param['SESSION_END'];
 
-        $data_update = [
-            "DESCRIPTION" => $DESCRIPTION,
-            "SESSION_DATE" => $SESSION_DATE,
-            "SESSION_START" => $SESSION_START,
-            "SESSION_END" => $SESSION_END
+        $data_where = [
+            'ID_SESSION' => $id_session,
+            'SESSION_PIN' => $pin_session,
         ];
-
-        $data_session_update = $this->api->update_data('session', $data_update, $ID_SESSION);
-        if ($data_session_update) {
+        $data_update_session = [
+            'SESSION_NAME' => $name_session,
+            'DESCRIPTION' => $desc,
+            'SESSION_DATE' => $date_sesi,
+            'SESSION_START' => $start,
+            'SESSION_END' => $end
+        ];
+        $update_sesi = $this->api->update_data('session', $data_update_session, $data_where);
+        if ($update_sesi > 0) {
             $this->response([
                 'status' => true,
-                'message' => 'Berhasil Menambahkan Pin',
-                'data' => $data_session_update
+                'message' => 'Berhasil Update Sesi',
+                'data' => $update_sesi
             ], self::HTTP_OK);
         } else {
             $this->response([
                 'status' => false,
-                'message' => 'Gagal Menambahkan Pin'
+                'message' => 'Gagal Update Sesi'
             ], self::HTTP_BAD_REQUEST);
         }
 
     }
+
 
     public function getQuestion_post()
     {
@@ -186,29 +193,6 @@ class Api extends RestController
             'ID_USER' => $this->post('ID_USER')
         ];
 
-        // $data_update_jawaban = $this->api->update_data('responses_pupuk', $data_jawaban, $data_where);
-        // if ($data_update_jawaban < 0) {
-        //     $data_insert_jawaban = $this->api->insert_data('responses_pupuk', $data_jawaban);
-        //     if ($data_insert_jawaban > 0) {
-        //         $this->response([
-        //             'status' => true,
-        //             'message' => 'Berhasil Menambahkan Jawaban Baru',
-        //             'data' => $data_insert_jawaban
-        //         ], self::HTTP_OK);
-        //     } else {
-        //         $this->response([
-        //             'status' => false,
-        //             'message' => 'Gagal Menambahkan Jawaban Baru'
-        //         ], self::HTTP_BAD_REQUEST);
-        //     }
-        // } else {
-        //     $this->response([
-        //         'status' => true,
-        //         'message' => 'Berhasil Update Data',
-        //         'data' => $data_update_jawaban
-        //     ], self::HTTP_OK);
-        // }
-
         $checking_data = $this->api->select_where('responses_pupuk', $data_where);
         if ($checking_data) {
             $data_update_jawaban = $this->api->update_data('responses_pupuk', $data_jawaban, $data_where);
@@ -241,6 +225,13 @@ class Api extends RestController
         }
 
     }
+
+    public function createSoalSandi_post()
+    {
+
+    }
+
+
 
 
 
