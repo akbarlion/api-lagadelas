@@ -54,11 +54,19 @@ $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
 //ADD YOUR ROUTES
-$route['api/master/user_all'] = 'Master/user_all';
+// $route['api/master/user_all'] = 'Master/user_all';
+
+// GET
+$route['api/master/role-list'] = 'Api/roleList';
+$route['api/master/admin-list'] = 'Api/adminList';
+
+// POST
 $route['api/master/question'] = 'Api/getQuestion';
 $route['api/master/auth'] = 'Api/login';
+$route['api/master/auth-panitia'] = 'Api/loginPanitia';
 $route['api/master/ins-session'] = 'Api/createPinSession';
 $route['api/master/session'] = 'Api/sessionList';
 $route['api/master/update-session'] = 'Api/sessionUpdate';
 $route['api/master/submit'] = 'Api/insertJawabanPupuk';
-$route['api/master/bikin-sandi'] = 'Api/createSoalSandi';
+$route['api/master/create-sandi'] = 'Api/createSoalSandi';
+$route['api/master/insert-account'] = 'Api/insertAccount';

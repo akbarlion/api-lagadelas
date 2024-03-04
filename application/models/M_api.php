@@ -23,6 +23,17 @@ class M_api extends CI_Model
         }
     }
 
+    public function insert_get_id($table, $data)
+    {
+        $this->db->insert($table, $data);
+
+        if ($this->db->affected_rows() > 0) {
+            return $this->db->insert_id();
+        } else {
+            return false;
+        }
+    }
+
     public function update_data($table, $set, $where)
     {
         $this->db->from($table)
@@ -32,12 +43,11 @@ class M_api extends CI_Model
         return $this->db->affected_rows();
     }
 
-
     public function question_pupuk($pin)
     {
         // Mengambil nilai page dan perPage dari URL
         $page = $this->input->get('page') ? $this->input->get('page') : 1;
-        $perPage = $this->input->get('perPage') ? $this->input->get('perPage') : 2;
+        $perPage = $this->input->get('perPage') ? $this->input->get('perPage') : 1;
 
         // Menghitung offset berdasarkan halaman dan jumlah per halaman
         $offset = ($page - 1) * $perPage;
@@ -133,7 +143,7 @@ class M_api extends CI_Model
             $this->db->where($conditions);
         }
 
-        return $this->db->get()->row(); // Use row() instead of result_array()
+        return $this->db->get()->row();
     }
 
     public function checking_pin($pin)
@@ -166,6 +176,68 @@ class M_api extends CI_Model
     {
         $this->db->insert_ignore($table, $data);
         return $this->db->affected_rows();
+    }
+
+
+    public function nilai_sandi($username, $pin)
+    {
+        // Assuming you have loaded the database library in your CodeIgniter controller or model
+
+        $username = 'ELANG_SMPN18SEMARANG';
+
+        $this->db->select('user.USERNAME');
+        $this->db->select_sum('(CASE WHEN answer_key_sandi.K1 = responses_sandi.kata1 THEN 4 ELSE 0 END +
+                        CASE WHEN answer_key_sandi.K2 = responses_sandi.kata2 THEN 4 ELSE 0 END +
+                        CASE WHEN answer_key_sandi.K3 = responses_sandi.kata3 THEN 4 ELSE 0 END +
+                        CASE WHEN answer_key_sandi.K4 = responses_sandi.kata4 THEN 4 ELSE 0 END +
+                        CASE WHEN answer_key_sandi.K5 = responses_sandi.kata5 THEN 4 ELSE 0 END)', 'Nilai');
+
+        $this->db->from('responses_sandi');
+        $this->db->join('answer_key_sandi', 'responses_sandi.ID_QUESTION = answer_key_sandi.ID_QUESTION');
+        $this->db->join('user', 'responses_sandi.ID_USER = user.ID');
+        $this->db->where('user.USERNAME', $username);
+        $this->db->group_by('user.USERNAME');
+
+        $query = $this->db->get();
+
+        // Now you can execute the query and get the result
+        $result = $query->result();
+
+        // You can then access the result as needed, for example:
+        foreach ($result as $row) {
+            echo 'Username: ' . $row->USERNAME . ', Nilai: ' . $row->Nilai;
+        }
+    }
+
+
+    public function checking_panitia($username, $password)
+    {
+        $this->db->select('*');
+        $this->db->from('account_panitia');
+
+        $conditions = array();
+
+        if ($username) {
+            $conditions['USERNAME'] = $username;
+        }
+
+        if ($password) {
+            $conditions['PASSWORD'] = $password;
+        }
+
+        if (!empty($conditions)) {
+            $this->db->where($conditions);
+        }
+
+        return $this->db->get()->row(); // Use row() instead of result_array()
+    }
+
+    public function select_panitia($select, $table, $table1, $on_table, $table2)
+    {
+        $this->db->select($select);
+        $this->db->from($table);
+        $this->db->join($table1, "{$on_table} = {$table2}");
+        return $this->db->get()->result_array();
     }
 
 

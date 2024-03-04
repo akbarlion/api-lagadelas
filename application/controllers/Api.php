@@ -15,11 +15,34 @@ use Reservation\Libraries\Authentication;
 
 class Api extends RestController
 {
-    function __construct()
+    // function __construct()
+    // {
+    //     parent::__construct();
+    //     $this->load->model('m_api', 'api');
+    //     $this->load->helper('download');
+    // }
+
+    public function __construct($config = "rest")
     {
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+        header("Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding,Authorization");
         parent::__construct();
         $this->load->model('m_api', 'api');
         $this->load->helper('download');
+    }
+
+
+    public function createJWT($username, $password)
+    {
+        $token_data['USERNAME'] = $username;
+        $token_data['PASSWORD'] = $password;
+        $tokenData = $this->authorization_token->generateToken($token_data);
+        return $tokenData;
+    }
+    private function sendJson($data)
+    {
+        $this->output->set_header('Content-Type: application/json; charset=utf-8')->set_output(json_encode($data));
     }
 
     public function sessionList_get()
@@ -36,6 +59,40 @@ class Api extends RestController
                 'status' => false,
                 'message' => 'Gagal Menampilkan Data'
             ], self::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function roleList_get()
+    {
+        $data_role = $this->api->get_all('role_access');
+        if ($data_role > 0) {
+            $this->response([
+                'status' => 200,
+                'message' => 'Berhasil Menampilkan Data Role Access',
+                'data' => $data_role
+            ], self::HTTP_OK);
+        } else {
+            $this->response([
+                'status' => 404,
+                'message' => 'Gagal Menampilkan Data'
+            ], self::HTTP_NOT_FOUND);
+        }
+    }
+
+    public function adminList_get()
+    {
+        $data_user_panitia = $this->api->select_panitia('*', 'account_panitia', 'role_access', 'account_panitia.ACCESS_ROLE', 'role_access.ID_ROLE');
+        if ($data_user_panitia > 0) {
+            $this->response([
+                'status' => 200,
+                'message' => 'Berhasil Menampilkan Data Panitia',
+                'data' => $data_user_panitia
+            ], self::HTTP_OK);
+        } else {
+            $this->response([
+                'status' => 404,
+                'message' => 'Gagal Menampilkan Data'
+            ], self::HTTP_NOT_FOUND);
         }
     }
 
@@ -76,7 +133,6 @@ class Api extends RestController
         }
 
     }
-
 
     public function getQuestion_post()
     {
@@ -228,8 +284,121 @@ class Api extends RestController
 
     public function createSoalSandi_post()
     {
+        $param = $this->post();
+        $QUESTION_TEXT = $param['QUESTION_TEXT'];
+        $SESSION_PIN = $param['SESSION_PIN'];
+        $QUESTION_IMAGE = $param['QUESTION_IMAGE'];
+        $K1 = $param['K1'];
+        $K2 = $param['K2'];
+        $K3 = $param['K3'];
+        $K4 = $param['K4'];
+        $K5 = $param['K5'];
+
+        $data_question_sandi = [
+            'QUESTION_TEXT' => $QUESTION_TEXT,
+            'SESSION_PIN' => $SESSION_PIN,
+            'QUESTION_IMAGE' => $QUESTION_IMAGE
+        ];
+
+
+        $data_question = $this->api->insert_get_id('question', $data_question_sandi);
+
+        $data_kunci_sandi = [
+            'ID_QUESTION' => $data_question,
+            'K1' => $K1,
+            'K2' => $K2,
+            'K3' => $K3,
+            'K4' => $K4,
+            'K5' => $K5,
+        ];
+
+        if ($data_question > 0) {
+            $data_kunci = $this->api->insert_data('kunci_sandi', $data_kunci_sandi);
+            if ($data_kunci > 0) {
+                $this->response([
+                    'status' => 200,
+                    'message' => 'Berhasil Menambahkan Data Kunci',
+                    'data' => $data_kunci
+                ], self::HTTP_OK);
+            } else {
+                $this->response([
+                    'status' => 500,
+                    'message' => 'Gagal Menambahkan Data Kunci'
+                ], self::HTTP_BAD_REQUEST);
+            }
+        } else {
+            $this->response([
+                'status' => 500,
+                'message' => 'Gagal Menambahkan Soal'
+            ], self::HTTP_BAD_REQUEST);
+        }
 
     }
+
+    public function insertAccount_post()
+    {
+        $param = $this->post();
+        $USERNAME = $param['USERNAME'];
+        $PASSWORD = md5($param['PASSWORD']);
+        $FULL_NAME = $param['FULL_NAME'];
+        $DIVISI = $param['DIVISI'];
+        $EMAIL = $param['EMAIL'];
+        $ACCESS_ROLE = $param['ACCESS_ROLE'];
+        $CREATED_AT = $param['CREATED_AT'];
+
+        $data_post_panitia = [
+            'USERNAME' => $USERNAME,
+            'PASSWORD' => $PASSWORD,
+            'FULL_NAME' => $FULL_NAME,
+            'DIVISI' => $DIVISI,
+            'EMAIL' => $EMAIL,
+            'ACCESS_ROLE' => $ACCESS_ROLE,
+            'CREATED_AT' => $CREATED_AT,
+        ];
+
+        $data_panitia = $this->api->insert_data('account_panitia', $data_post_panitia);
+        if ($data_panitia > 0) {
+            $this->response([
+                'status' => 200,
+                'message' => 'Berhasil Menambahkan Data Panitia',
+                'data' => $data_panitia
+            ], self::HTTP_OK);
+        } else {
+            $this->response([
+                'status' => 500,
+                'message' => 'Gagal Menambahkan Data Panitia'
+            ], self::HTTP_BAD_REQUEST);
+        }
+
+    }
+
+    public function loginPanitia_post()
+    {
+        $param = $this->post();
+        $USERNAME = $param['USERNAME'];
+        $PASSWORD = md5($param['PASSWORD']);
+
+        $login_panitia = $this->api->checking_panitia($USERNAME, $PASSWORD);
+        if ($login_panitia) {
+            $this->response([
+                'token' => $this->createJWT($USERNAME, $PASSWORD),
+                'status' => 200,
+                'message' => "Berhasil Menampilkan Data",
+                'data' => $login_panitia
+            ], self::HTTP_OK);
+        } else {
+            $this->response([
+                'status' => 500,
+                'message' => "Gagal Menampilkan Data"
+            ], self::HTTP_NOT_FOUND);
+        }
+    }
+
+
+
+
+
+
 
 
 
