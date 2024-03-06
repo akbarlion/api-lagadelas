@@ -70,3 +70,6 @@ $route['api/master/update-session'] = 'Api/sessionUpdate';
 $route['api/master/submit'] = 'Api/insertJawabanPupuk';
 $route['api/master/create-sandi'] = 'Api/createSoalSandi';
 $route['api/master/insert-account'] = 'Api/insertAccount';
+$route['api/master/update-account'] = 'Api/updateAccountPanitia';
+$route['api/master/update-password'] = 'Api/updatePassword';
+$route['api/master/ins-puk'] = 'Api/upSoalPupuk';

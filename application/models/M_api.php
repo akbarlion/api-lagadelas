@@ -240,6 +240,31 @@ class M_api extends CI_Model
         return $this->db->get()->result_array();
     }
 
+    public function insert_pupuk($data_question, $data_options)
+    {
+        $this->db->trans_begin();
+
+        $this->db->insert('question', $data_question);
+        $question_id = $this->db->insert_id();
+
+        foreach ($data_options as &$option) {
+            $option['ID_QUESTION'] = $question_id;
+        }
+
+        $this->db->insert_batch('options', $data_options);
+
+
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+        } else {
+            $this->db->trans_commit();
+        }
+        return $this->db->trans_status();
+    }
+    // $data_kunci['ID_QUESTION'] = $question_id;
+    // $this->db->insert('answer_key', $data_kunci);
+
+
 
 
 

@@ -15,22 +15,22 @@ use Reservation\Libraries\Authentication;
 
 class Api extends RestController
 {
-    // function __construct()
-    // {
-    //     parent::__construct();
-    //     $this->load->model('m_api', 'api');
-    //     $this->load->helper('download');
-    // }
-
-    public function __construct($config = "rest")
+    function __construct()
     {
-        header("Access-Control-Allow-Origin: *");
-        header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-        header("Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding,Authorization");
         parent::__construct();
         $this->load->model('m_api', 'api');
         $this->load->helper('download');
     }
+
+    // public function __construct($config = "rest")
+    // {
+    //     header("Access-Control-Allow-Origin: *");
+    //     header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+    //     header("Access-Control-Allow-Headers: Content-Type, Content-Length, Accept-Encoding,Authorization");
+    //     parent::__construct();
+    //     $this->load->model('m_api', 'api');
+    //     $this->load->helper('download');
+    // }
 
 
     public function createJWT($username, $password)
@@ -394,9 +394,115 @@ class Api extends RestController
         }
     }
 
+    public function updateAccountPanitia_post()
+    {
+        $param = $this->post();
+        $where_id = $param['ID'];
 
+        $USERNAME = $param['USERNAME'];
+        $PASSWORD = md5($param['PASSWORD']);
+        $FULL_NAME = $param['FULL_NAME'];
+        $DIVISI = $param['DIVISI'];
+        $EMAIL = $param['EMAIL'];
+        $ACCESS_ROLE = $param['ACCESS_ROLE'];
+        $STATUS = $param['STATUS'];
+        $MODIFIED_AT = $param['MODIFIED_AT'];
 
+        $data_perubahan = [
+            'USERNAME' => $USERNAME,
+            'PASSWORD' => $PASSWORD,
+            'FULL_NAME' => $FULL_NAME,
+            'DIVISI' => $DIVISI,
+            'EMAIL' => $EMAIL,
+            'ACCESS_ROLE' => $ACCESS_ROLE,
+            'STATUS' => $STATUS,
+            'MODIFIED_AT' => $MODIFIED_AT
+        ];
+        $data_perubahan = $this->api->update_data('account_panitia', $data_perubahan, array('ID' => $where_id));
+        if ($data_perubahan) {
+            $this->response([
+                'status' => 200,
+                'message' => 'Berhasil Update Data',
+                'data' => $data_perubahan
+            ], self::HTTP_OK);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'Gagal Update Data'
+            ], self::HTTP_BAD_REQUEST);
+        }
+    }
 
+    public function updatePassword_post()
+    {
+        $param = $this->post();
+        $USERNAME = $param['USERNAME'];
+        $PASSWORD = md5($param['PASSWORD']);
+        $data_where = [
+            'USERNAME' => $USERNAME,
+            'PASSWORD' => $PASSWORD,
+        ];
+        $check_password = $this->api->select_where('account_panitia', $data_where);
+        if ($check_password > 0) {
+            $update_password = $this->api->update_data('account_panitia', array('PASSWORD' => $PASSWORD), array('USERNAME' => $USERNAME));
+            if ($update_password) {
+                $this->response([
+                    'status' => 200,
+                    'message' => 'Berhasil Update Data',
+                    'data' => $update_password
+                ], self::HTTP_OK);
+            } else {
+                $this->response([
+                    'status' => 500,
+                    'message' => 'Gagal Update Data'
+                ], self::HTTP_BAD_REQUEST);
+            }
+        } else {
+            $this->response([
+                'status' => 500,
+                'message' => 'Gagal Menemukan Data'
+            ], self::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function upSoalPupuk_post()
+    {
+        $param = $this->post();
+        $QUESTION_TEXT = $param['QUESTION_TEXT'];
+        $QUESTION_IMAGE = $param['QUESTION_IMAGE'];
+        $SESSION_PIN = $param['SESSION_PIN'];
+        $OPTIONS = $param['OPTIONS']; // Menyimpan array dari opsi
+
+        $data_question = [
+            'QUESTION_TEXT' => $QUESTION_TEXT,
+            'SESSION_PIN' => $SESSION_PIN,
+            'QUESTION_IMAGE' => $QUESTION_IMAGE,
+        ];
+
+        $data_options = [];
+
+        foreach ($OPTIONS as $option) {
+            $data_options[] = [
+                'OPTIONS_TEXT' => $option['OPTIONS_TEXT'],
+                'VALUE' => $option['VALUE']
+            ];
+        }
+
+        $result = $this->api->insert_pupuk($data_question, $data_options);
+        if ($result) {
+            $this->response([
+                'status' => true,
+                'message' => 'Berhasil input data',
+                'data' => $result
+            ], self::HTTP_OK);
+        } else {
+            $this->response([
+                'status' => false,
+                'message' => 'Gagal input data / ada kesalahan',
+                'data' => null
+            ], self::HTTP_BAD_REQUEST);
+        }
+    }
 
 
 
