@@ -716,10 +716,6 @@ class Api extends RestController
         }
     }
 
-    public function submitPupukRecap_post()
-    {
-        $param = $this->post();
-    }
 
     public function verifPeserta_post()
     {
@@ -773,6 +769,70 @@ class Api extends RestController
     }
 
 
+    public function submitPupukRecap_post()
+    {
+        $param = $this->post();
+        $USERNAME = $param['USERNAME'];
+        $SESSION_PIN = $param['SESSION_PIN'];
+        $JENIS_SOAL = $param['JENIS_SOAL'];
+
+        $data_submit = $this->api->submit_pupuk($USERNAME, $SESSION_PIN, $JENIS_SOAL);
+        if ($data_submit) {
+            $totalNilaiPUK = $data_submit[0]['TotalNilaiPUK'];
+            $id_peserta = $data_submit[0]['id_peserta'];
+            $update_data_puk = $this->api->update_data('recapitulation', array('PUPUK' => $totalNilaiPUK), array('ID_PESERTA' => $id_peserta));
+            if ($update_data_puk) {
+                $this->response([
+                    'status' => 200,
+                    'message' => 'Berhasil Update Data',
+                    'data' => $update_data_puk
+                ], self::HTTP_OK);
+            } else {
+                $this->response([
+                    'status' => 500,
+                    'message' => 'Gagal Menampilkan Data'
+                ], self::HTTP_BAD_REQUEST);
+            }
+        } else {
+            $this->response([
+                'status' => 500,
+                'message' => 'Gagal Menampilkan Data'
+            ], self::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function penilaianJuri_post()
+    {
+        // $params = $this->post();
+        // $NAMA_JURI = $params["NAMA_JURI"];
+        // $ID_PESERTA = $params["ID_PESERTA"];
+        // $MATA_LOMBA = $params["MATA_LOMBA"];
+        // $P1 = $params["P1"];
+        // $P2 = $params["P2"];
+        // $P3 = $params["P3"];
+
+        // $nilai_juri = array(
+        //     "NAMA_JURI" => $NAMA_JURI,
+        //     "MATA_LOMBA" => $MATA_LOMBA,
+        //     "ID_PESERTA" => $ID_PESERTA,
+        //     "NAMA_JURI" => $P1,
+        //     "NAMA_JURI" => $P2,
+        //     "NAMA_JURI" => $P3,
+        // );
+
+        // $this->db->insert('table_nilai_juri',$nilai_Juri);
+
+        // if(insert data berhasil){
+        //     $this->db->where('MATA_LOMBA', $MATA_LOMBA)
+        //     $this->db->where('ID_PESERTA', $ID_PESERTA)
+        //     $jumlah_data = $this->db->get('table_nilai_juri')
+        //     if(jumlah_data->num_rows() == 3 ){
+        //         HITUNG SEMUA DAN MASUK KEREKAP
+        //     }
+        // } else {
+        //     Gagal Memasukan Data
+        // }
+    }
 
 
 

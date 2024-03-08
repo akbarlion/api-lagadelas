@@ -47,6 +47,41 @@ class M_api extends CI_Model
         return $this->db->affected_rows();
     }
 
+    // public function question_pupuk($pin)
+    // {
+    //     $page = $this->input->get('page') ? $this->input->get('page') : 1;
+    //     $perPage = $this->input->get('perPage') ? $this->input->get('perPage') : 1;
+
+    //     $offset = ($page - 1) * $perPage;
+
+    //     $this->db->select('ID_QUESTION, QUESTION_TEXT');
+    //     $this->db->from('question');
+    //     $this->db->limit($perPage, $offset);
+    //     $questionQuery = $this->db->get();
+    //     $questions = $questionQuery->result();
+
+    //     $result = array();
+    //     foreach ($questions as $question) {
+    //         $this->db->select('ID_OPTIONS, OPTIONS_TEXT');
+    //         $this->db->from('options');
+    //         $this->db->where('ID_QUESTION', $question->ID_QUESTION);
+    //         $optionsQuery = $this->db->get();
+    //         $options = $optionsQuery->result();
+
+    //         $result[] = array(
+    //             'QUEST_ID' => $question->ID_QUESTION,
+    //             'QUESTION_TEXT' => $question->QUESTION_TEXT,
+    //             'OPTIONS' => $options,
+    //         );
+    //     }
+    //     return array(
+    //         'status' => true,
+    //         'message' => 'Berhasil Mendapatkan Data',
+    //         'pages' => $page,
+    //         'data' => $result,
+    //     );
+    // }
+
     public function question_pupuk($pin)
     {
         $page = $this->input->get('page') ? $this->input->get('page') : 1;
@@ -54,8 +89,10 @@ class M_api extends CI_Model
 
         $offset = ($page - 1) * $perPage;
 
-        $this->db->select('ID_QUESTION, QUESTION_TEXT');
+        $this->db->select('ID_QUESTION, QUESTION_TEXT, QUESTION_IMAGE');
         $this->db->from('question');
+        $this->db->where('JENIS_SOAL', 'PUPUK');
+        $this->db->where('SESSION_PIN', $pin);
         $this->db->limit($perPage, $offset);
         $questionQuery = $this->db->get();
         $questions = $questionQuery->result();
@@ -68,9 +105,12 @@ class M_api extends CI_Model
             $optionsQuery = $this->db->get();
             $options = $optionsQuery->result();
 
+            $questionImage = isset($question->QUESTION_IMAGE) ? $question->QUESTION_IMAGE : null;
+
             $result[] = array(
                 'QUEST_ID' => $question->ID_QUESTION,
                 'QUESTION_TEXT' => $question->QUESTION_TEXT,
+                'QUESTION_IMAGE' => $questionImage,
                 'OPTIONS' => $options,
             );
         }
@@ -82,6 +122,8 @@ class M_api extends CI_Model
         );
     }
 
+
+
     public function question_sandi($page, $pin)
     {
         $page = $this->input->get('page') ? $this->input->get('page') : 1;
@@ -91,6 +133,8 @@ class M_api extends CI_Model
 
         $this->db->select('ID_QUESTION, QUESTION_TEXT');
         $this->db->from('question');
+        $this->db->where('JENIS_SOAL', 'SANDI');
+        $this->db->where('SESSION_PIN', $pin);
         $this->db->limit($perPage, $offset);
         $questionQuery = $this->db->get();
         $questions = $questionQuery->result();
@@ -106,6 +150,7 @@ class M_api extends CI_Model
             $result[] = array(
                 'QUEST_ID' => $question->ID_QUESTION,
                 'QUESTION_TEXT' => $question->QUESTION_TEXT,
+                'QUESTION_IMAGE' => $question->QUESTION_IMAGE,
                 'OPTIONS' => $options,
             );
         }
@@ -160,9 +205,9 @@ class M_api extends CI_Model
 
     public function getting_user($username, $password)
     {
-        $this->db->select('ID as id_user, NAME');
+        $this->db->select('user.ID as id_user, daftar_peserta.NAMA_REGU as NAME, daftar_peserta.NAMA_PANGKALAN as NAMA_PANGKALAN');
         $this->db->from('user');
-        // $this->db->join('session', 'session');
+        $this->db->join('daftar_peserta', 'daftar_peserta.ID = user.ID_PESERTA');
         return $this->db->get()->row();
     }
 
@@ -201,7 +246,6 @@ class M_api extends CI_Model
             echo 'Username: ' . $row->USERNAME . ', Nilai: ' . $row->Nilai;
         }
     }
-
 
     public function checking_panitia($username, $password)
     {
@@ -255,11 +299,30 @@ class M_api extends CI_Model
         return $this->db->trans_status();
     }
 
+    // public function submit_pupuk($username, $session_pin, $jenis_soal)
+    // {
+    //     $this->db->select();
+    // }
+
     public function submit_pupuk($username, $session_pin, $jenis_soal)
     {
-        $this->db->select();
-    }
+        $this->db->select('daftar_peserta.NAMA_REGU as NAMA_REGU, daftar_peserta.ID as id_peserta');
+        $this->db->select('ROUND((SUM(CASE WHEN options.VALUE = 1 THEN 1 ELSE 0 END) / 3) * 10) AS TotalNilaiPUK');
+        $this->db->from('responses_pupuk');
+        $this->db->join('options', 'options.ID_OPTIONS = responses_pupuk.ID_OPTIONS');
+        $this->db->join('user', 'user.ID = responses_pupuk.ID_USER');
+        $this->db->join('daftar_peserta', 'user.ID_PESERTA = daftar_peserta.ID');
+        $this->db->join('question', 'options.ID_QUESTION = question.ID_QUESTION');
+        $this->db->join('session', 'session.SESSION_PIN = question.SESSION_PIN');
+        $this->db->where('user.USERNAME', $username);
+        $this->db->where('session.SESSION_PIN', $session_pin);
+        $this->db->where('question.JENIS_SOAL', $jenis_soal);
+        $this->db->group_by('daftar_peserta.NAMA_REGU');
 
+        $query = $this->db->get();
+
+        return $query->result_array();
+    }
 
 
 
