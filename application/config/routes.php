@@ -62,6 +62,8 @@ $route['api/master/admin-list'] = 'Api/adminList';
 
 // POST
 $route['api/master/question'] = 'Api/getQuestion';
+$route['api/master/register-peserta'] = 'Api/registerPeserta';
+$route['api/master/insert-juri'] = 'Api/juriMaster';
 $route['api/master/auth'] = 'Api/login';
 $route['api/master/auth-panitia'] = 'Api/loginPanitia';
 $route['api/master/ins-session'] = 'Api/createPinSession';
@@ -73,3 +75,5 @@ $route['api/master/insert-account'] = 'Api/insertAccount';
 $route['api/master/update-account'] = 'Api/updateAccountPanitia';
 $route['api/master/update-password'] = 'Api/updatePassword';
 $route['api/master/ins-puk'] = 'Api/upSoalPupuk';
+$route['api/master/create-semboyan'] = 'Api/createSoalSemboyan';
+$route['api/master/jawaban-pupuk'] = 'Api/jawabanPupukToRekap';

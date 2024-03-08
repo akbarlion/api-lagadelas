@@ -14,7 +14,9 @@ class M_api extends CI_Model
 
     public function insert_data($table, $data)
     {
-        $this->db->insert($table, $data);
+        $insert_query = $this->db->insert_string($table, $data);
+        $insert_query = str_replace('INSERT INTO', 'INSERT IGNORE INTO', $insert_query);
+        $this->db->query($insert_query);
 
         if ($this->db->affected_rows() > 0) {
             return true;
@@ -25,7 +27,9 @@ class M_api extends CI_Model
 
     public function insert_get_id($table, $data)
     {
-        $this->db->insert($table, $data);
+        $insert_query = $this->db->insert_string($table, $data);
+        $insert_query = str_replace('INSERT INTO', 'INSERT IGNORE INTO', $insert_query);
+        $this->db->query($insert_query);
 
         if ($this->db->affected_rows() > 0) {
             return $this->db->insert_id();
@@ -45,21 +49,17 @@ class M_api extends CI_Model
 
     public function question_pupuk($pin)
     {
-        // Mengambil nilai page dan perPage dari URL
         $page = $this->input->get('page') ? $this->input->get('page') : 1;
         $perPage = $this->input->get('perPage') ? $this->input->get('perPage') : 1;
 
-        // Menghitung offset berdasarkan halaman dan jumlah per halaman
         $offset = ($page - 1) * $perPage;
 
-        // Ambil pertanyaan terlebih dahulu
         $this->db->select('ID_QUESTION, QUESTION_TEXT');
         $this->db->from('question');
         $this->db->limit($perPage, $offset);
         $questionQuery = $this->db->get();
         $questions = $questionQuery->result();
 
-        // Ambil opsi untuk pertanyaan yang diambil
         $result = array();
         foreach ($questions as $question) {
             $this->db->select('ID_OPTIONS, OPTIONS_TEXT');
@@ -68,7 +68,6 @@ class M_api extends CI_Model
             $optionsQuery = $this->db->get();
             $options = $optionsQuery->result();
 
-            // Membuat array untuk pertanyaan beserta opsi
             $result[] = array(
                 'QUEST_ID' => $question->ID_QUESTION,
                 'QUESTION_TEXT' => $question->QUESTION_TEXT,
@@ -183,7 +182,7 @@ class M_api extends CI_Model
     {
         // Assuming you have loaded the database library in your CodeIgniter controller or model
 
-        $username = 'ELANG_SMPN18SEMARANG';
+        // $username = 'ELANG_SMPN18SEMARANG';
 
         $this->db->select('user.USERNAME');
         $this->db->select_sum('(CASE WHEN answer_key_sandi.K1 = responses_sandi.kata1 THEN 4 ELSE 0 END +
@@ -261,8 +260,15 @@ class M_api extends CI_Model
         }
         return $this->db->trans_status();
     }
-    // $data_kunci['ID_QUESTION'] = $question_id;
-    // $this->db->insert('answer_key', $data_kunci);
+
+    public function submit_pupuk($username, $session_pin, $jenis_soal)
+    {
+        $this->db->select();
+    }
+
+
+
+
 
 
 

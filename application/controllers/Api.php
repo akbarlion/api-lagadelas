@@ -438,13 +438,14 @@ class Api extends RestController
         $param = $this->post();
         $USERNAME = $param['USERNAME'];
         $PASSWORD = md5($param['PASSWORD']);
+        $NEW_PASSWORD = md5($param['NEW_PASSWORD']);
         $data_where = [
             'USERNAME' => $USERNAME,
             'PASSWORD' => $PASSWORD,
         ];
         $check_password = $this->api->select_where('account_panitia', $data_where);
-        if ($check_password > 0) {
-            $update_password = $this->api->update_data('account_panitia', array('PASSWORD' => $PASSWORD), array('USERNAME' => $USERNAME));
+        if ($check_password) {
+            $update_password = $this->api->update_data('account_panitia', array('PASSWORD' => $NEW_PASSWORD), array('USERNAME' => $USERNAME));
             if ($update_password) {
                 $this->response([
                     'status' => 200,
@@ -460,7 +461,7 @@ class Api extends RestController
         } else {
             $this->response([
                 'status' => 500,
-                'message' => 'Gagal Menemukan Data'
+                'message' => 'Password salah'
             ], self::HTTP_BAD_REQUEST);
         }
     }
@@ -471,12 +472,14 @@ class Api extends RestController
         $QUESTION_TEXT = $param['QUESTION_TEXT'];
         $QUESTION_IMAGE = $param['QUESTION_IMAGE'];
         $SESSION_PIN = $param['SESSION_PIN'];
-        $OPTIONS = $param['OPTIONS']; // Menyimpan array dari opsi
+        $JENIS_SOAL = $param['$JENIS_SOAL'];
+        $OPTIONS = $param['OPTIONS'];
 
         $data_question = [
             'QUESTION_TEXT' => $QUESTION_TEXT,
             'SESSION_PIN' => $SESSION_PIN,
             'QUESTION_IMAGE' => $QUESTION_IMAGE,
+            'JENIS_SOAL' => $JENIS_SOAL
         ];
 
         $data_options = [];
@@ -484,6 +487,7 @@ class Api extends RestController
         foreach ($OPTIONS as $option) {
             $data_options[] = [
                 'OPTIONS_TEXT' => $option['OPTIONS_TEXT'],
+                'OPTIONS_IMAGE' => $option['OPTIONS_IMAGE'],
                 'VALUE' => $option['VALUE']
             ];
         }
@@ -503,6 +507,201 @@ class Api extends RestController
             ], self::HTTP_BAD_REQUEST);
         }
     }
+
+    public function createSoalSemboyan_post()
+    {
+        $param = $this->post();
+        $QUESTION_TEXT = $param['QUESTION_TEXT'];
+        $SESSION_PIN = $param['SESSION_PIN'];
+        $QUESTION_IMAGE = $param['QUESTION_IMAGE'];
+        $JENIS_SOAL = $param['JENIS_SOAL'];
+        $K1 = $param['K1'];
+        $K2 = $param['K2'];
+        $K3 = $param['K3'];
+        $K4 = $param['K4'];
+        $K5 = $param['K5'];
+        $K6 = $param['K6'];
+        $K7 = $param['K7'];
+        $K8 = $param['K8'];
+        $K9 = $param['K9'];
+        $K10 = $param['K10'];
+
+        $data_question = [
+            'QUESTION_TEXT' => $QUESTION_TEXT,
+            'SESSION_PIN' => $SESSION_PIN,
+            'QUESTION_IMAGE' => $QUESTION_IMAGE,
+            'JENIS_SOAL' => $JENIS_SOAL
+        ];
+
+        $question_uploaded = $this->api->insert_get_id('question', $data_question);
+        if ($question_uploaded) {
+
+            $data_kunci_semboyan = [
+                'ID_QUESTION' => $question_uploaded,
+                'K1' => $K1,
+                'K2' => $K2,
+                'K3' => $K3,
+                'K4' => $K4,
+                'K5' => $K5,
+                'K6' => $K6,
+                'K7' => $K7,
+                'K8' => $K8,
+                'K9' => $K9,
+                'K10' => $K10
+            ];
+
+            $data_upload_kunci = $this->api->insert_data('kunci_semboyan', $data_kunci_semboyan);
+            if ($data_kunci_semboyan) {
+                $this->response([
+                    'status' => 200,
+                    'message' => 'Berhasil Insert Data',
+                    'data' => $data_upload_kunci
+                ], self::HTTP_OK);
+            } else {
+                $this->response([
+                    'status' => 500,
+                    'message' => 'Gagal Insert Data'
+                ], self::HTTP_BAD_REQUEST);
+            }
+        } else {
+            $this->response([
+                'status' => 500,
+                'message' => 'Gagal Upload Soal'
+            ], self::HTTP_BAD_REQUEST);
+        }
+    }
+
+
+    public function juriMaster_post()
+    {
+        $param = $this->post();
+        $ID_PESERTA = $param['ID_PESERTA'];
+        $NAME_JURI = $param['NAME_JURI'];
+        $MATA_LOMBA = $param['MATA_LOMBA'];
+        $P1 = $param['P1'];
+        $P2 = $param['P2'];
+        $P3 = $param['P3'];
+        $P4 = $param['P4'];
+        $P5 = $param['P5'];
+        $P6 = $param['P6'];
+        $P7 = $param['P7'];
+        $P8 = $param['P8'];
+        $P9 = $param['P9'];
+        $P10 = $param['P10'];
+        $P11 = $param['P11'];
+        $P12 = $param['P12'];
+        $P13 = $param['P13'];
+        $P14 = $param['P14'];
+        $P15 = $param['P15'];
+        $P16 = $param['P16'];
+        $P17 = $param['P17'];
+        $P18 = $param['P18'];
+        $P19 = $param['P19'];
+        $P20 = $param['P20'];
+        $P21 = $param['P21'];
+        $P22 = $param['P22'];
+        $P23 = $param['P23'];
+        $P24 = $param['P24'];
+        $P25 = $param['P25'];
+        $P26 = $param['P26'];
+
+        $data_mst_juri = [
+            'ID_PESERTA' => $ID_PESERTA,
+            'NAME_JURI' => $NAME_JURI,
+            'MATA_LOMBA' => $MATA_LOMBA,
+            'P1' => $P1,
+            'P2' => $P2,
+            'P3' => $P3,
+            'P4' => $P4,
+            'P5' => $P5,
+            'P6' => $P6,
+            'P7' => $P7,
+            'P8' => $P8,
+            'P9' => $P9,
+            'P10' => $P10,
+            'P11' => $P11,
+            'P12' => $P12,
+            'P13' => $P13,
+            'P14' => $P14,
+            'P15' => $P15,
+            'P16' => $P16,
+            'P17' => $P17,
+            'P18' => $P18,
+            'P19' => $P19,
+            'P20' => $P20,
+            'P21' => $P21,
+            'P22' => $P22,
+            'P23' => $P23,
+            'P24' => $P24,
+            'P25' => $P25,
+            'P26' => $P26,
+        ];
+
+        $posting_juri = $this->api->insert_data('juri_mst', $data_mst_juri);
+        if ($posting_juri) {
+            $this->response([
+                'status' => 200,
+                'message' => 'Berhasil Insert Data',
+                'data' => $posting_juri
+            ], self::HTTP_OK);
+        } else {
+            $this->response([
+                'status' => 500,
+                'message' => 'Gagal Insert Data'
+            ], self::HTTP_BAD_REQUEST);
+        }
+
+    }
+
+    public function registerPeserta_post()
+    {
+        $param = $this->post();
+        $NAMA_REGU = $param['NAMA_REGU'];
+        $NAMA_PANGKALAN = $param['NAMA_PANGKALAN'];
+        $CATEGORY = $param['CATEGORY'];
+        $SURAT_TUGAS_SEKOLAH = $param['SURAT_TUGAS_SEKOLAH'];
+        $KWARRAN = $param['KWARRAN'];
+        $SURAT_TUGAS_KWARRAN = $param['SURAT_TUGAS_KWARRAN'];
+        $NOMOR_WHATSAPP = $param['NOMOR_WHATSAPP'];
+        $NAMA_PENDAMPING = $param['NAMA_PENDAMPING'];
+        $FOTO_REGU = $param['FOTO_REGU'];
+
+        $data_register = [
+            'NAMA_REGU' => $NAMA_REGU,
+            'NAMA_PANGKALAN' => $NAMA_PANGKALAN,
+            'CATEGORY' => $CATEGORY,
+            'SURAT_TUGAS_SEKOLAH' => $SURAT_TUGAS_SEKOLAH,
+            'KWARRAN' => $KWARRAN,
+            'SURAT_TUGAS_KWARRAN' => $SURAT_TUGAS_KWARRAN,
+            'NOMOR_WHATSAPP' => $NOMOR_WHATSAPP,
+            'NAMA_PENDAMPING' => $NAMA_PENDAMPING,
+            'FOTO_REGU' => $FOTO_REGU,
+        ];
+
+        $data_peserta = $this->api->insert_data('daftar_peserta', $data_register);
+        if ($data_peserta) {
+            $this->response([
+                'status' => 200,
+                'message' => 'Berhasil Insert Data',
+                'data' => $data_peserta
+            ], self::HTTP_OK);
+        } else {
+            $this->response([
+                'status' => 500,
+                'message' => 'Gagal Insert Data'
+            ], self::HTTP_BAD_REQUEST);
+        }
+
+    }
+
+    public function submitPupukRecap_post()
+    {
+        $param = $this->post();
+
+    }
+
+
+
 
 
 
