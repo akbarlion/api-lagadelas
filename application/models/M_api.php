@@ -84,21 +84,17 @@ class M_api extends CI_Model
 
     public function question_sandi($page, $pin)
     {
-        // Mengambil nilai page dan perPage dari URL
         $page = $this->input->get('page') ? $this->input->get('page') : 1;
         $perPage = $this->input->get('perPage') ? $this->input->get('perPage') : 1;
 
-        // Menghitung offset berdasarkan halaman dan jumlah per halaman
         $offset = ($page - 1) * $perPage;
 
-        // Ambil pertanyaan terlebih dahulu
         $this->db->select('ID_QUESTION, QUESTION_TEXT');
         $this->db->from('question');
         $this->db->limit($perPage, $offset);
         $questionQuery = $this->db->get();
         $questions = $questionQuery->result();
 
-        // Ambil opsi untuk pertanyaan yang diambil
         $result = array();
         foreach ($questions as $question) {
             $this->db->select('ID_OPTIONS, OPTIONS_TEXT');
@@ -107,7 +103,6 @@ class M_api extends CI_Model
             $optionsQuery = $this->db->get();
             $options = $optionsQuery->result();
 
-            // Membuat array untuk pertanyaan beserta opsi
             $result[] = array(
                 'QUEST_ID' => $question->ID_QUESTION,
                 'QUESTION_TEXT' => $question->QUESTION_TEXT,
@@ -176,7 +171,6 @@ class M_api extends CI_Model
         $this->db->insert_ignore($table, $data);
         return $this->db->affected_rows();
     }
-
 
     public function nilai_sandi($username, $pin)
     {

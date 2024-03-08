@@ -153,6 +153,28 @@ class Api extends RestController
         }
     }
 
+    public function questionSemboyan_post()
+    {
+        $param = $this->post();
+        $SESSION_PIN = $param['SESSION_PIN'];
+        $data_semboyan = [
+            'SESSION_PIN' => $SESSION_PIN
+        ];
+        $soal_semboyan = $this->api->select_where('question', $data_semboyan);
+        if ($soal_semboyan) {
+            $this->response([
+                'status' => 200,
+                'message' => 'Berhasil Menampilkan Data',
+                'data' => $soal_semboyan
+            ], self::HTTP_OK);
+        } else {
+            $this->response([
+                'status' => 404,
+                'message' => 'Gagal Menampilkan Data'
+            ], self::HTTP_NOT_FOUND);
+        }
+    }
+
     public function login_post()
     {
         $param = $this->post();
@@ -676,6 +698,7 @@ class Api extends RestController
             'NOMOR_WHATSAPP' => $NOMOR_WHATSAPP,
             'NAMA_PENDAMPING' => $NAMA_PENDAMPING,
             'FOTO_REGU' => $FOTO_REGU,
+            'STATUS_VERIF' => '0'
         ];
 
         $data_peserta = $this->api->insert_data('daftar_peserta', $data_register);
@@ -691,13 +714,62 @@ class Api extends RestController
                 'message' => 'Gagal Insert Data'
             ], self::HTTP_BAD_REQUEST);
         }
-
     }
 
     public function submitPupukRecap_post()
     {
         $param = $this->post();
+    }
 
+    public function verifPeserta_post()
+    {
+        $param = $this->post();
+        $USERNAME = $param['USERNAME'];
+        $PASSWORD = $param['PASSWORD'];
+        $ID_PESERTA = $param['ID_PESERTA'];
+        $data_verif = [
+            'STATUS_VERIF' => '1',
+        ];
+        $update_peserta = $this->api->update_data('daftar_peserta', $data_verif, $ID_PESERTA);
+        if ($update_peserta) {
+            $data_make_user = [
+                'USERNAME' => $USERNAME,
+                'PASSWORD' => $PASSWORD,
+                'ID_PESERTA' => $ID_PESERTA,
+            ];
+
+            $user_peserta = $this->api->insert_data('user', $data_make_user);
+            if ($user_peserta) {
+
+                $data_recap = [
+                    'ID_PESERTA' => $ID_PESERTA
+                ];
+
+                $insert_peserta = $this->api->insert_data('recapitulation', $data_recap);
+                if ($insert_peserta) {
+                    $this->response([
+                        'status' => 200,
+                        'message' => 'Berhasil Insert Data',
+                        'data' => $update_peserta
+                    ], self::HTTP_OK);
+                } else {
+                    $this->response([
+                        'status' => 500,
+                        'message' => 'Gagal Insert Data'
+                    ], self::HTTP_BAD_REQUEST);
+                }
+            } else {
+                $this->response([
+                    'status' => 500,
+                    'message' => 'Gagal Insert Data'
+                ], self::HTTP_BAD_REQUEST);
+            }
+        } else {
+            $this->response([
+                'status' => 500,
+                'message' => 'Gagal Insert Data'
+            ], self::HTTP_BAD_REQUEST);
+        }
     }
 
 

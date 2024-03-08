@@ -63,6 +63,9 @@ $route['api/master/admin-list'] = 'Api/adminList';
 // POST
 $route['api/master/question'] = 'Api/getQuestion';
 $route['api/master/register-peserta'] = 'Api/registerPeserta';
+$route['api/master/verif-peserta'] = 'Api/verifPeserta';
+$route['api/master/question-semboyan'] = 'Api/questionSemboyan';
+
 $route['api/master/insert-juri'] = 'Api/juriMaster';
 $route['api/master/auth'] = 'Api/login';
 $route['api/master/auth-panitia'] = 'Api/loginPanitia';
